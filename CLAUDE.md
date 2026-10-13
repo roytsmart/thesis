@@ -26,8 +26,12 @@ inserted as the PDFs those repositories build.
   conclusion to be solely the student's work, so never draft their prose.
   Leave them as an `outline` of what each must contain.
 - **Never reformat the manuscripts.** They are inserted as the PDFs their
-  repositories build with `pdf(linenumbers=False)`. A change to an article
-  belongs in the repository of the article.
+  repositories build, line numbers and all. A change to an article belongs in
+  the repository of the article.
+- **The scale comes from the `Layout` of the journal's class, never from the
+  ink on the pages**, so that a draft is scaled as its final version will
+  be, and an equation which runs into the margin cannot shrink a whole
+  article.
 - **Do not import the packages of the articles.** They pin incompatible
   versions of `optika` and `aastex`, so each is built in its own environment
   by `Manuscript.build()`, which runs it in a subprocess.
@@ -53,9 +57,11 @@ ruff check                      # lint (CI enforces)
 - **`_manuscripts.py`**: `Manuscript` describes an article (its authors and
   their contributions, its status in peer review, the package which builds
   it), and `manuscripts()` lists them in the order of their chapters.
-- **`_pages.py`**: `trim()` measures the blank margins of a PDF from its
-  rendered pixels, and `headings()` reads its bookmarks, checked against the
-  text of its pages.
+- **`_layout.py`**: `Layout` is the region of the page a journal's class
+  prints on, which is scaled into the text block of the thesis, with the
+  layouts of AASTeX (`aastex_twocolumn`) and SPIE (`spieman`).
+- **`_pages.py`**: `headings()` reads the bookmarks of a PDF, checked against
+  the text of its pages.
 - **`_references.py`**: `citations()` reads the keys of a `.bbl` file, and
   `bibliography()` merges BibTeX files.
 - **`_preamble.py`**: `\includemanuscript`, which inserts a manuscript into

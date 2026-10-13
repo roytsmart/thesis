@@ -57,13 +57,16 @@ def test_build(
         module="article",
         stem="article",
         repository="https://github.com/roytsmart/article",
+        layout=thesis.aastex_twocolumn,
     )
 
     root = tmp_path / "manuscripts"
     result = manuscript.build(python=sys.executable, root=root)
 
+    # The article is built as its repository builds it, so its draft keeps
+    # its line numbers.
     assert result == root / "article" / "article.pdf"
-    assert result.read_text() == "linenumbers=False"
+    assert result.read_text() == "linenumbers=True"
     assert result.with_suffix(".bbl").exists()
     assert (result.parent / "sources.bib").exists()
 
@@ -76,6 +79,7 @@ def test_build_failure(tmp_path: pathlib.Path) -> None:
         module="a_package_which_does_not_exist",
         stem="missing",
         repository="https://github.com/roytsmart/missing",
+        layout=thesis.aastex_twocolumn,
     )
     with pytest.raises(RuntimeError, match="a_package_which_does_not_exist"):
         manuscript.build(python=sys.executable, root=tmp_path)

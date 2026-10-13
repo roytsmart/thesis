@@ -2,6 +2,7 @@ import pathlib
 
 import pylatex
 import pylatex.utils
+import pymupdf
 
 import thesis
 
@@ -138,7 +139,8 @@ def manuscript(
     Following the Scholarly Works Option of the Graduate School, the chapter
     begins with the Contribution of Authors and Co-Authors and the
     Manuscript Information pages, after which come the pages of the
-    manuscript itself, formatted as the journal formats them.
+    manuscript itself, formatted as the journal formats them, with the
+    :class:`thesis.Layout` of the journal fit into the text block.
     The headings of the manuscript are listed in the table of contents of the
     thesis, as the Graduate School asks.
 
@@ -147,12 +149,21 @@ def manuscript(
     manuscript
         The manuscript to include.
     path
-        The PDF of the manuscript, which is measured to trim its margins and
-        find its headings.
+        The PDF of the manuscript, which is read to find its headings.
     name
         The name the PDF of the manuscript is included by, relative to the
         directory the thesis is built in.
     """
+    layout = manuscript.layout
+    with pymupdf.open(path) as document:
+        sizes = {(round(page.rect.width), round(page.rect.height)) for page in document}
+    if sizes != {(round(layout.width), round(layout.height))}:
+        raise ValueError(
+            f"the pages of {path} are {sizes} big points, but the layout of "
+            f"{manuscript.name!r} is for pages of {layout.width} by "
+            f"{layout.height} big points."
+        )
+
     label = pylatex.Label(pylatex.Marker(manuscript.name, prefix="chapter"))
     result = Chapter(manuscript.title, label=label)
 
@@ -160,8 +171,8 @@ def manuscript(
     result.append(pylatex.NoEscape(r"\clearpage"))
     result.append(_information(manuscript))
 
-    left, bottom, right, top = thesis.trim(path)
-    options = [f"trim={left}bp {bottom}bp {right}bp {top}bp"]
+    trim = " ".join(f"{t:.2f}bp" for t in layout.trim)
+    options = [f"trim={trim}"]
 
     entries = [
         f"{heading.page},{_sections[heading.level]},{heading.level},"

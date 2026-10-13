@@ -2,75 +2,12 @@ import dataclasses
 import pathlib
 import re
 
-import numpy as np
 import pymupdf
 
 __all__ = [
     "Heading",
     "headings",
-    "trim",
 ]
-
-
-def trim(
-    path: pathlib.Path,
-    resolution: float = 144,
-    threshold: int = 250,
-    padding: float = 1,
-) -> tuple[float, float, float, float]:
-    """
-    How much of each edge of the pages of a PDF is blank.
-
-    The pages are rendered and the blank margin is measured from the pixels,
-    rather than from the objects on the page, since a figure often draws
-    shapes which its clipping path hides.
-    The margins are the smallest over every page of the document, so that
-    trimming all of the pages by them cuts nothing off any of them.
-
-    Parameters
-    ----------
-    path
-        The PDF to measure.
-    resolution
-        The resolution to render the pages at, in dots per inch.
-    threshold
-        The gray level, out of 255, below which a pixel counts as ink.
-    padding
-        A margin of blank space to keep around the ink, in big points.
-
-    Returns
-    -------
-        The blank margin on the left, bottom, right, and top of the pages,
-        in big points, in the order that the ``trim`` option of
-        ``\\includegraphics`` expects.
-    """
-    left = bottom = right = top = np.inf
-
-    with pymupdf.open(path) as document:
-        for page in document:
-            pixmap = page.get_pixmap(dpi=resolution, colorspace=pymupdf.csGRAY)
-            pixels = np.frombuffer(pixmap.samples, dtype=np.uint8)
-            pixels = pixels.reshape(pixmap.height, pixmap.width)
-            rows, columns = np.nonzero(pixels < threshold)
-            if rows.size == 0:
-                continue
-
-            scale = 72 / resolution
-            width = page.rect.width
-            height = page.rect.height
-
-            left = min(left, columns.min() * scale)
-            right = min(right, width - (columns.max() + 1) * scale)
-            top = min(top, rows.min() * scale)
-            bottom = min(bottom, height - (rows.max() + 1) * scale)
-
-    if np.isinf(left):
-        raise ValueError(f"every page of {path} is blank")
-
-    def _pad(margin: float) -> float:
-        return round(max(margin - padding, 0), 1)
-
-    return _pad(left), _pad(bottom), _pad(right), _pad(top)
 
 
 @dataclasses.dataclass

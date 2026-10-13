@@ -44,9 +44,11 @@ def preamble() -> list[pylatex.Package | pylatex.NoEscape]:
         # Each manuscript is inserted as the PDF its repository builds, which
         # the Graduate School allows as long as the page numbers of the thesis
         # continue through it and it stays inside the margins.
-        # So the pages are trimmed to their ink, scaled to fit the text block,
-        # centered on it, and given the page style of the thesis, which puts
-        # the page number in the header.
+        # So the pages are trimmed to the layout of the journal's class,
+        # scaled to fit the text block, centered on it, and given the page
+        # style of the thesis, which puts the page number in the header.
+        # The pages are not clipped to the trim, so whatever is outside the
+        # layout, like the line numbers of a draft, stays in the margin.
         # The offset is expanded to plain lengths first, since pdfpages does
         # not evaluate expressions in its options.
         pylatex.NoEscape(r"""
@@ -60,7 +62,6 @@ def preamble() -> list[pylatex.Package | pylatex.NoEscape]:
   \edef\manuscript@include{%
     \noexpand\includepdf[
       pages=-,
-      clip,
       width=\noexpand\textwidth,
       height=\noexpand\textheight,
       keepaspectratio,

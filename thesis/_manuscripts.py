@@ -6,6 +6,8 @@ import subprocess
 import sys
 from typing import Literal
 
+from ._layout import Layout, aastex_twocolumn, spieman
+
 __all__ = [
     "Author",
     "Manuscript",
@@ -44,7 +46,10 @@ class Manuscript:
 
     The Graduate School allows the chapter to keep the formatting of the
     journal, so the article is inserted as the PDF that its own repository
-    builds, with the line numbers for review turned off.
+    builds, as it is.
+    The pages are scaled to fit the :class:`Layout` of the class of the
+    journal into the text block of the thesis, so a draft is scaled as its
+    final version will be, and its line numbers stay in the margin.
     The article is built in an environment of its own, since the articles do
     not all depend on the same versions of the same packages.
     """
@@ -61,7 +66,7 @@ class Manuscript:
     module: str
     """
     The name of the Python package which builds the manuscript, whose
-    ``pdf(linenumbers)`` function returns the path of the PDF it built.
+    ``pdf()`` function returns the path of the PDF it built.
     """
 
     stem: str
@@ -69,6 +74,12 @@ class Manuscript:
 
     repository: str
     """The URL of the repository of the manuscript."""
+
+    layout: Layout
+    """
+    Where the class of the journal prints on the page, which is scaled to
+    fit the text block of the thesis.
+    """
 
     status: Literal["prepared", "submitted", "accepted", "published"] = "prepared"
     """
@@ -122,7 +133,7 @@ class Manuscript:
         root: pathlib.Path = directory_manuscripts,
     ) -> pathlib.Path:
         """
-        Build the PDF of the manuscript without line numbers, and copy it,
+        Build the PDF of the manuscript as its repository does, and copy it,
         its formatted bibliography, and its BibTeX files into
         :meth:`directory`.
 
@@ -137,7 +148,7 @@ class Manuscript:
         directory = self.directory(root)
         directory.mkdir(parents=True, exist_ok=True)
 
-        code = f"import {self.module}; print({self.module}.pdf(linenumbers=False))"
+        code = f"import {self.module}; print({self.module}.pdf())"
         process = subprocess.run(
             [os.fspath(python), "-c", code],
             capture_output=True,
@@ -190,6 +201,7 @@ def manuscripts() -> list[Manuscript]:
             module="esis_instrument_paper",
             stem="esis-instrument",
             repository="https://github.com/esis-mission/esis-instrument-paper",
+            layout=aastex_twocolumn,
         ),
         Manuscript(
             name="noise",
@@ -205,6 +217,7 @@ def manuscripts() -> list[Manuscript]:
             module="ccd_snr",
             stem="ccd-euv-snr",
             repository="https://github.com/roytsmart/ccd-noise-paper",
+            layout=aastex_twocolumn,
         ),
         Manuscript(
             name="diffusion",
@@ -219,6 +232,7 @@ def manuscripts() -> list[Manuscript]:
             module="ccd_diffusion",
             stem="ccd-diffusion",
             repository="https://github.com/roytsmart/ccd-diffusion-paper",
+            layout=spieman,
         ),
         Manuscript(
             name="jet",
@@ -235,5 +249,6 @@ def manuscripts() -> list[Manuscript]:
             module="esis_jet_paper",
             stem="esis-jet",
             repository="https://github.com/esis-mission/esis-jet-paper",
+            layout=aastex_twocolumn,
         ),
     ]

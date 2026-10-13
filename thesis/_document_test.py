@@ -1,11 +1,13 @@
+import dataclasses
 import pathlib
 
-import numpy as np
 import pylatex
 import pymupdf
 import pytest
 
 import thesis
+
+from .conftest import linenumbers_per_page
 
 
 def test_document(
@@ -22,29 +24,32 @@ def test_document(
     assert tex.count(r"\includemanuscript[") == len(manuscripts)
 
 
-def _margins(page: pymupdf.Page) -> tuple[float, float, float, float]:
+def test_document_page_size(
+    manuscripts: list[thesis.Manuscript],
+    root: pathlib.Path,
+) -> None:
+    a4 = thesis.Layout(left=50, top=40, right=545, bottom=802, width=595, height=842)
+    manuscripts = [dataclasses.replace(manuscripts[0], layout=a4)]
+    with pytest.raises(ValueError, match="layout"):
+        thesis.document(manuscripts=manuscripts, root=root)
+
+
+def _squares(page: pymupdf.Page) -> list[pymupdf.Rect]:
     """
-    The blank margins of a page, measured from its pixels, in inches.
+    The black squares which mark the corners of the layout of a manuscript
+    written by the fixture, from the top of the page down.
 
     Parameters
     ----------
     page
-        The page to measure.
-
-    Returns
-    -------
-        The left, right, top, and bottom margins.
+        A page of the thesis holding a page of the manuscript.
     """
-    pixmap = page.get_pixmap(dpi=144, colorspace=pymupdf.csGRAY)
-    pixels = np.frombuffer(pixmap.samples, dtype=np.uint8)
-    pixels = pixels.reshape(pixmap.height, pixmap.width)
-    rows, columns = np.nonzero(pixels < 250)
-    return (
-        columns.min() / 144,
-        (pixmap.width - columns.max() - 1) / 144,
-        rows.min() / 144,
-        (pixmap.height - rows.max() - 1) / 144,
-    )
+    rects = [
+        drawing["rect"]
+        for drawing in page.get_drawings()
+        if drawing.get("fill") == (0.0, 0.0, 0.0)
+    ]
+    return sorted(rects, key=lambda rect: rect.y0)
 
 
 def _number(page: pymupdf.Page) -> int:
@@ -101,19 +106,40 @@ def test_pdf(
             if "Manuscript Information" in page and "Status of Manuscript" in page
         ]
         assert len(pages) == len(manuscripts)
+        first, second = pages
 
         for page in pages:
             for i in range(page + 1, page + 4):
-                left, right, _, bottom = _margins(document[i])
+                top_left, bottom_right = _squares(document[i])
 
-                # The Graduate School asks for margins of at least an inch.
-                assert left > 1 - 0.02
-                assert right > 1 - 0.02
-                assert bottom > 1 - 0.02
+                # The layout of the manuscript is inside the margins of an
+                # inch which the Graduate School asks for.
+                width = document[i].rect.width
+                height = document[i].rect.height
+                assert top_left.x0 > 72 - 0.1
+                assert bottom_right.x1 < width - 72 + 0.1
+                assert bottom_right.y1 < height - 72 + 0.1
 
                 # The page numbers of the thesis continue through the pages
                 # of the manuscript.
                 assert _number(document[i]) == _number(document[i - 1]) + 1
+
+        for i, j in zip(range(first + 1, first + 4), range(second + 1, second + 4)):
+            # The line numbers of the second manuscript do not change its
+            # scale, so a draft looks as its final version will.
+            for a, b in zip(_squares(document[i]), _squares(document[j])):
+                assert tuple(a) == pytest.approx(tuple(b), abs=0.01)
+
+            # The line numbers are in the margin, to the left of the layout,
+            # and still on the page.
+            left = _squares(document[j])[0].x0
+            numbers = [
+                word
+                for word in document[j].get_text("words")
+                if word[4].isdigit() and word[2] < left
+            ]
+            assert len(numbers) == linenumbers_per_page
+            assert all(word[0] > 0 for word in numbers)
 
     # Every reference cited by the manuscripts is in the cumulative
     # references.

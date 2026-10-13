@@ -5,17 +5,22 @@ import pytest
 
 import thesis
 
+linenumbers_per_page = 50
+"""How many lines are numbered on each page of a manuscript with line numbers."""
+
 
 def _manuscript(
     directory: pathlib.Path,
     name: str,
+    linenumbers: bool = False,
 ) -> thesis.Manuscript:
     """
     Write a small manuscript into a directory, as :meth:`thesis.Manuscript.build`
     would, and describe it.
 
-    The PDF has three letter-sized pages whose ink spans from 50 to 562 big
-    points across and from 40 to 752 big points down, an abstract and a list
+    The PDF has three letter-sized pages whose layout spans from 50 to 562
+    big points across and from 40 to 752 big points down, marked by a black
+    square in its top left and bottom right corners, an abstract and a list
     of references which are not bookmarked, and a bookmark for an appendix
     which points to the first page instead of the third, as the bookmarks of
     an appendix sometimes do.
@@ -30,6 +35,10 @@ def _manuscript(
         The directory holding the directories of every manuscript.
     name
         The name of the manuscript.
+    linenumbers
+        Whether to number the lines of the manuscript, as a draft for review
+        does, in the margin to the left of the layout, with the numbers right
+        aligned at 40 big points.
     """
     manuscript = thesis.Manuscript(
         name=name,
@@ -41,6 +50,7 @@ def _manuscript(
         module=name,
         stem=f"{name}-article",
         repository=f"https://github.com/roytsmart/{name}",
+        layout=thesis.Layout(left=50, top=40, right=562, bottom=752),
     )
 
     path = manuscript.pdf(directory)
@@ -68,6 +78,14 @@ def _manuscript(
             [1, "An Appendix", 1],
         ]
     )
+    if linenumbers:
+        number = 1
+        for page in document:
+            for i in range(linenumbers_per_page):
+                text = str(number)
+                width = pymupdf.get_text_length(text, fontname="helv", fontsize=5)
+                page.insert_text((40 - width, 60 + 13 * i), text, fontsize=5)
+                number += 1
     document.save(path)
     document.close()
 
@@ -116,6 +134,10 @@ def root(tmp_path: pathlib.Path) -> pathlib.Path:
 @pytest.fixture
 def manuscripts(root: pathlib.Path) -> list[thesis.Manuscript]:
     """
-    Two small manuscripts written into :func:`root`.
+    Two small manuscripts written into :func:`root`, the same but for the
+    line numbers of the second.
     """
-    return [_manuscript(root, "first"), _manuscript(root, "second")]
+    return [
+        _manuscript(root, "first"),
+        _manuscript(root, "second", linenumbers=True),
+    ]

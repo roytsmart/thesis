@@ -17,7 +17,6 @@ dependencies = [
     "pylatex~=1.4",
     "aastex~=0.9.1",
     "pymupdf",
-    "numpy",
 ]
 dynamic = ["version"]
 
