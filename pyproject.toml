@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "thesis"
+authors = [
+    {name = "Roy T. Smart", email = "roytsmart@gmail.com"},
+]
+description = "A Montana State University doctoral dissertation in the Scholarly Works Option, assembled from four journal articles."
+readme = "README.md"
+requires-python = ">=3.12"
+classifiers = [
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "pylatex~=1.4",
+    "aastex~=0.9.1",
+    "pymupdf",
+    "numpy",
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+]
+
+[project.urls]
+Homepage = "https://github.com/roytsmart/thesis"
+
+[tool.setuptools.packages.find]
+include = ["thesis*"]
+
+[tool.setuptools.package-data]
+thesis = ["*.bib", "*.cls"]
+
+[tool.setuptools_scm]
