@@ -75,7 +75,6 @@ def document(
     doc.append(pylatex.NoEscape(r"\end{preliminary}"))
 
     doc.append(thesis.chapters.introduction())
-    doc.append(thesis.chapters.methodology())
     for manuscript in manuscripts:
         doc.append(
             thesis.chapters.manuscript(

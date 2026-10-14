@@ -21,8 +21,8 @@ inserted as the PDFs those repositories publish on GitHub Pages.
   https://www.montana.edu/etd/formatting/scholarly-works-option.html, with
   sample pages linked from there. Check a change against them, not only
   against the tests.
-- **The introduction, methodology, conclusion, and abstract are the
-  student's own writing.** The Graduate School requires the introduction and
+- **The introduction, conclusion, and abstract are the student's own
+  writing.** The Graduate School requires the introduction and
   conclusion to be solely the student's work, so never draft their prose.
   Leave them as an `outline` of what each must contain. The abstract holds a
   draft the student asked for, which they will rewrite in their own words;

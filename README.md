@@ -18,14 +18,15 @@ journal. The manuscripts are:
 
 | Chapter | Manuscript | Repository |
 |---|---|---|
-| 3 | Measuring the Charge-diffusion Kernel of a Back-illuminated CCD in Orbit from Glancing Particle Tracks | [roytsmart/ccd-diffusion-paper](https://github.com/roytsmart/ccd-diffusion-paper) |
-| 4 | The Noise on Ultraviolet Astronomical Images Captured by Back-illuminated Silicon Sensors | [roytsmart/ccd-noise-paper](https://github.com/roytsmart/ccd-noise-paper) |
-| 5 | The EUV Snapshot Imaging Spectrograph | [esis-mission/esis-instrument-paper](https://github.com/esis-mission/esis-instrument-paper) |
-| 6 | Flows, Magnetic Topology, and Temperature of a Transition Region Jet Observed by the EUV Snapshot Imaging Spectrograph | [esis-mission/esis-jet-paper](https://github.com/esis-mission/esis-jet-paper) |
+| 2 | Measuring the Charge-diffusion Kernel of a Back-illuminated CCD in Orbit from Glancing Particle Tracks | [roytsmart/ccd-diffusion-paper](https://github.com/roytsmart/ccd-diffusion-paper) |
+| 3 | The Noise on Ultraviolet Astronomical Images Captured by Back-illuminated Silicon Sensors | [roytsmart/ccd-noise-paper](https://github.com/roytsmart/ccd-noise-paper) |
+| 4 | The EUV Snapshot Imaging Spectrograph | [esis-mission/esis-instrument-paper](https://github.com/esis-mission/esis-instrument-paper) |
+| 5 | Flows, Magnetic Topology, and Temperature of a Transition Region Jet Observed by the EUV Snapshot Imaging Spectrograph | [esis-mission/esis-jet-paper](https://github.com/esis-mission/esis-jet-paper) |
 
 They are surrounded by the chapters the Graduate School requires of the
-student alone: a general introduction, a methodology, and a general
-conclusion.
+student alone: a general introduction and a general conclusion. There is no
+methodology chapter, which the Graduate School recommends but does not
+require.
 
 ## How the thesis is assembled
 
@@ -101,8 +102,8 @@ repository; it can be enabled again from the Actions tab.
 Placeholders render as a bold **XX** or a gray outline, so that the draft
 shows plainly what is left.
 
-- [ ] The introduction, methodology, and conclusion, which the Graduate
-      School requires to be solely the student's own writing.
+- [ ] The introduction and conclusion, which the Graduate School requires
+      to be solely the student's own writing.
 - [ ] The abstract rewritten in the student's own words, from the draft in
       `thesis/_front.py`, with the results of the event E article and the
       conclusions filled in.

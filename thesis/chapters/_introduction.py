@@ -28,7 +28,7 @@ def introduction() -> Chapter:
     slits (IRIS, Hinode/EIS, SPICE; no simultaneity), many slits (MUSE),
     integral field units (SNIFS), and slitless spectrographs, whose
     overlappograms go back to Skylab S082A. A short version of the survey in
-    Chapter 5.
+    Chapter 4.
   \item Computed tomography imaging spectroscopy: each dispersed order as a
     projection of the cube, and the number of views limiting what can be
     recovered (Kak \& Slaney 1988; Descour et al.\ 1997). Its origins outside
@@ -49,14 +49,14 @@ def introduction() -> Chapter:
       uncertainty of what it recovers.
     \item Both are rarely measured on a flight sensor; ESIS flew
       back-illuminated CCDs whose quantum efficiency was not measured
-      before flight (Chapter 5).
-    \item Why Chapters 3 and 4 use sensors on IRIS and the Hubble Space
+      before flight (Chapter 4).
+    \item Why Chapters 2 and 3 use sensors on IRIS and the Hubble Space
       Telescope rather than those of ESIS, and how their results carry over.
       \begin{itemize}
-      \item Chapter 3: the noise model of Chapter 4 is tested against
+      \item Chapter 2: the noise model of Chapter 3 is tested against
         IRIS, and needs an accurate model of how charge diffuses in the IRIS
         sensors.
-      \item Chapter 4: no ultraviolet photon transfer curve was available
+      \item Chapter 3: no ultraviolet photon transfer curve was available
         for the ESIS sensors, so the noise model is tested against the
         measurements from IRIS and the Hubble Space Telescope.
       \end{itemize}
@@ -76,21 +76,19 @@ def introduction() -> Chapter:
   \end{itemize}
 \item \textbf{How the manuscripts address them.}
   \begin{itemize}
-  \item Chapter 2: the methods common to the manuscripts, in more detail
-    than they had room for.
-  \item Chapters 3 to 6: for each manuscript, the question it answers, what
+  \item Chapters 2 to 5: for each manuscript, the question it answers, what
     it found, and what the next chapter takes from it. The chapters are in
     the order of publication, so none refers forward.
     \begin{itemize}
-    \item Chapter 3: the charge-diffusion kernel of the IRIS sensors, from
-      glancing particle tracks, which Chapter 4 needs to model the noise of
+    \item Chapter 2: the charge-diffusion kernel of the IRIS sensors, from
+      glancing particle tracks, which Chapter 3 needs to model the noise of
       those sensors.
-    \item Chapter 4: partial charge collection, and the noise of
+    \item Chapter 3: partial charge collection, and the noise of
       ultraviolet images from IRIS and the Hubble Space Telescope.
-    \item Chapter 5: ESIS, its design, and its first flight.
-    \item Chapter 6: event E, a jet observed by ESIS.
+    \item Chapter 4: ESIS, its design, and its first flight.
+    \item Chapter 5: event E, a jet observed by ESIS.
     \end{itemize}
-  \item Chapter 7: the conclusion.
+  \item Chapter 6: the conclusion.
   \end{itemize}
 \end{outline}""")
     return result
