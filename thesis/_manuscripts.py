@@ -199,8 +199,42 @@ class Manuscript:
 def manuscripts() -> list[Manuscript]:
     """
     The manuscripts included in the thesis, in the order of their chapters.
+
+    The chapters are in the order the manuscripts are published in, so that
+    none refers forward to a later one.
     """
     return [
+        Manuscript(
+            name="diffusion",
+            title=(
+                "Measuring the Charge-diffusion Kernel of a Back-illuminated "
+                "CCD in Orbit from Glancing Particle Tracks"
+            ),
+            authors=[
+                Author("Roy T. Smart"),
+                Author("Charles C. Kankelborg"),
+            ],
+            stem="ccd-diffusion",
+            repository="https://github.com/roytsmart/ccd-diffusion-paper",
+            url="https://roytsmart.github.io/ccd-diffusion-paper/",
+            layout=spieman,
+        ),
+        Manuscript(
+            name="noise",
+            title=(
+                "The Noise on Ultraviolet Astronomical Images Captured by "
+                "Back-illuminated Silicon Sensors"
+            ),
+            authors=[
+                Author("Roy T. Smart"),
+                Author("Charles C. Kankelborg"),
+                Author("Jacob D. Parker"),
+            ],
+            stem="ccd-euv-snr",
+            repository="https://github.com/roytsmart/ccd-noise-paper",
+            url="https://roytsmart.github.io/ccd-noise-paper/",
+            layout=aastex_twocolumn,
+        ),
         Manuscript(
             name="instrument",
             title="The EUV Snapshot Imaging Spectrograph",
@@ -226,37 +260,6 @@ def manuscripts() -> list[Manuscript]:
             repository="https://github.com/esis-mission/esis-instrument-paper",
             url="https://esis-mission.github.io/esis-instrument-paper/",
             layout=aastex_twocolumn,
-        ),
-        Manuscript(
-            name="noise",
-            title=(
-                "The Noise on Ultraviolet Astronomical Images Captured by "
-                "Back-illuminated Silicon Sensors"
-            ),
-            authors=[
-                Author("Roy T. Smart"),
-                Author("Charles C. Kankelborg"),
-                Author("Jacob D. Parker"),
-            ],
-            stem="ccd-euv-snr",
-            repository="https://github.com/roytsmart/ccd-noise-paper",
-            url="https://roytsmart.github.io/ccd-noise-paper/",
-            layout=aastex_twocolumn,
-        ),
-        Manuscript(
-            name="diffusion",
-            title=(
-                "Measuring the Charge-diffusion Kernel of a Back-illuminated "
-                "CCD in Orbit from Glancing Particle Tracks"
-            ),
-            authors=[
-                Author("Roy T. Smart"),
-                Author("Charles C. Kankelborg"),
-            ],
-            stem="ccd-diffusion",
-            repository="https://github.com/roytsmart/ccd-diffusion-paper",
-            url="https://roytsmart.github.io/ccd-diffusion-paper/",
-            layout=spieman,
         ),
         Manuscript(
             name="jet",

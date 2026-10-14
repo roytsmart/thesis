@@ -17,9 +17,9 @@ journal. The manuscripts are:
 
 | Chapter | Manuscript | Repository |
 |---|---|---|
-| 3 | The EUV Snapshot Imaging Spectrograph | [esis-mission/esis-instrument-paper](https://github.com/esis-mission/esis-instrument-paper) |
+| 3 | Measuring the Charge-diffusion Kernel of a Back-illuminated CCD in Orbit from Glancing Particle Tracks | [roytsmart/ccd-diffusion-paper](https://github.com/roytsmart/ccd-diffusion-paper) |
 | 4 | The Noise on Ultraviolet Astronomical Images Captured by Back-illuminated Silicon Sensors | [roytsmart/ccd-noise-paper](https://github.com/roytsmart/ccd-noise-paper) |
-| 5 | Measuring the Charge-diffusion Kernel of a Back-illuminated CCD in Orbit from Glancing Particle Tracks | [roytsmart/ccd-diffusion-paper](https://github.com/roytsmart/ccd-diffusion-paper) |
+| 5 | The EUV Snapshot Imaging Spectrograph | [esis-mission/esis-instrument-paper](https://github.com/esis-mission/esis-instrument-paper) |
 | 6 | Flows, Magnetic Topology, and Temperature of a Transition Region Jet Observed by the EUV Snapshot Imaging Spectrograph | [esis-mission/esis-jet-paper](https://github.com/esis-mission/esis-jet-paper) |
 
 They are surrounded by the chapters the Graduate School requires of the
