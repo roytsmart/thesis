@@ -13,7 +13,7 @@ This is one package within the larger Kankelborg-Group workspace (see the
 parent `../CLAUDE.md`). Four of its chapters are journal articles from sibling
 repositories, `esis-instrument-paper`, `ccd-noise-paper` (checked out locally
 as `ccd-snr-paper`), `ccd-diffusion-paper`, and `esis-jet-paper`, which are
-inserted as the PDFs those repositories build.
+inserted as the PDFs those repositories publish on GitHub Pages.
 
 ## Rules
 
@@ -32,9 +32,10 @@ inserted as the PDFs those repositories build.
   ink on the pages**, so that a draft is scaled as its final version will
   be, and an equation which runs into the margin cannot shrink a whole
   article.
-- **Do not import the packages of the articles.** They pin incompatible
-  versions of `optika` and `aastex`, so each is built in its own environment
-  by `Manuscript.build()`, which runs it in a subprocess.
+- **Do not import or build the packages of the articles.** They pin
+  incompatible versions of `optika` and `aastex`, so `Manuscript.download()`
+  fetches the PDF, `.bbl`, and `.bib` each repository publishes on GitHub
+  Pages instead.
 - `thesis/MSUstyle.cls` is vendored from the Graduate School's template and
   is licensed CC BY-NC-SA 3.0; do not edit it.
 
@@ -55,8 +56,9 @@ ruff check                      # lint (CI enforces)
   `pdf()` copies the manuscripts into `thesis/build/`, merges their
   bibliographies into `references.bib` there, and compiles it.
 - **`_manuscripts.py`**: `Manuscript` describes an article (its authors and
-  their contributions, its status in peer review, the package which builds
-  it), and `manuscripts()` lists them in the order of their chapters.
+  their contributions, its status in peer review, where its repository
+  publishes it), `Manuscript.download()` fetches it, and `manuscripts()`
+  lists them in the order of their chapters.
 - **`_layout.py`**: `Layout` is the region of the page a journal's class
   prints on, which is scaled into the text block of the thesis, with the
   layouts of AASTeX (`aastex_twocolumn`) and SPIE (`spieman`).

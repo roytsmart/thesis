@@ -3,9 +3,12 @@
 [![tests](https://github.com/roytsmart/thesis/actions/workflows/tests.yml/badge.svg)](https://github.com/roytsmart/thesis/actions/workflows/tests.yml)
 [![Black](https://github.com/roytsmart/thesis/actions/workflows/black.yml/badge.svg)](https://github.com/roytsmart/thesis/actions/workflows/black.yml)
 [![Ruff](https://github.com/roytsmart/thesis/actions/workflows/ruff.yml/badge.svg)](https://github.com/roytsmart/thesis/actions/workflows/ruff.yml)
+[![pdf](https://github.com/roytsmart/thesis/actions/workflows/pdf.yml/badge.svg)](https://github.com/roytsmart/thesis/actions/workflows/pdf.yml)
 
 The doctoral dissertation of Roy T. Smart, Department of Physics, Montana State
 University.
+
+📄 **[Read the current draft (pdf)](https://roytsmart.github.io/thesis/thesis.pdf)**
 
 The dissertation follows the Graduate School's
 [Scholarly Works Option](https://www.montana.edu/etd/formatting/scholarly-works-option.html),
@@ -28,10 +31,13 @@ conclusion.
 The `thesis` Python package generates the LaTeX of the thesis on the
 Graduate School's class, `MSUstyle.cls`, and compiles it.
 
-- **The manuscripts are inserted as PDFs**, as each repository above builds
-  them, and given the page numbers of the thesis in the header.
-  Since the articles do not all depend on the same versions of the same
-  packages, each is built in an environment of its own.
+- **The manuscripts are inserted as PDFs**, as each repository above
+  publishes them on GitHub Pages, and given the page numbers of the thesis in
+  the header.
+  Each repository publishes the formatted bibliography and the BibTeX file of
+  its article beside the PDF, and `thesis.Manuscript.download()` fetches all
+  three, so the articles, which do not all depend on the same versions of the
+  same packages, never have to be built here.
 - **The scale of each manuscript is set by the layout of its journal's class**
   (`thesis.aastex_twocolumn` or `thesis.spieman`), which is fit inside the
   one-inch margins, not by what is on its pages.
@@ -56,22 +62,21 @@ Install the package, along with a LaTeX installation with `latexmk`
 pip install -e .[test]
 ```
 
-Build each manuscript in an environment which has its package installed,
-which copies its PDF, formatted bibliography, and BibTeX files into
-`thesis/manuscripts/`:
+Download each manuscript, as its repository last published it, into
+`thesis/manuscripts/`, and compile the thesis into `thesis/build/thesis.pdf`:
 
 ```python
 import thesis
 
 for manuscript in thesis.manuscripts():
-    manuscript.build(python="path/to/the/environment/of/the/manuscript/python")
-```
+    manuscript.download()
 
-Then compile the thesis into `thesis/build/thesis.pdf`:
-
-```python
 thesis.pdf()
 ```
+
+To see the thesis with a pull request to one of the articles, download that
+manuscript from the preview of the pull request instead, for example
+`manuscript.download(url="https://roytsmart.github.io/ccd-noise-paper/pr/<number>/")`.
 
 The tests build a thesis from two small generated manuscripts, so they need
 LaTeX but none of the articles:
@@ -79,6 +84,16 @@ LaTeX but none of the articles:
 ```bash
 pytest
 ```
+
+## Continuous integration
+
+The `pdf` workflow downloads the manuscripts, compiles the thesis, and
+publishes it to the link above on every push to `master`, and again every
+day, so that it follows the articles as they change.
+Pull requests get their own preview at `…/pr/<number>/thesis.pdf`, linked in
+a comment on the pull request and removed when it closes.
+GitHub disables the daily run after 60 days without activity in the
+repository; it can be enabled again from the Actions tab.
 
 ## Still owed
 

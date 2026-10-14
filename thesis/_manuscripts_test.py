@@ -1,6 +1,7 @@
+import dataclasses
 import pathlib
-import sys
-import textwrap
+import shutil
+import urllib.error
 
 import pytest
 
@@ -27,59 +28,80 @@ def test_manuscripts() -> None:
     assert len(set(authors)) == len(authors)
 
 
-def test_build(
+def _files(
+    manuscript: thesis.Manuscript,
+    root: pathlib.Path,
+) -> list[pathlib.Path]:
+    """
+    The PDF, the formatted bibliography, and the BibTeX file of a manuscript.
+
+    Parameters
+    ----------
+    manuscript
+        The manuscript.
+    root
+        The directory which holds the directories of every manuscript.
+    """
+    return [manuscript.pdf(root), manuscript.bbl(root), manuscript.bib(root)]
+
+
+def test_download(
+    manuscripts: list[thesis.Manuscript],
+    root: pathlib.Path,
     tmp_path: pathlib.Path,
-    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    package = tmp_path / "packages" / "article"
-    package.mkdir(parents=True)
-    (package / "__init__.py").write_text(
-        textwrap.dedent('''
-            import pathlib
-
-            def pdf(linenumbers: bool = True) -> pathlib.Path:
-                """A stand-in for the package of an article."""
-                directory = pathlib.Path(__file__).parent
-                path = directory / "article.pdf"
-                path.write_text(f"linenumbers={linenumbers}")
-                path.with_suffix(".bbl").write_text("bbl")
-                (directory / "sources.bib").write_text("bib")
-                return path
-        '''),
-        encoding="utf-8",
-    )
-    monkeypatch.setenv("PYTHONPATH", str(package.parent))
-
-    manuscript = thesis.Manuscript(
-        name="article",
-        title="An Article",
-        authors=[thesis.Author("Roy T. Smart")],
-        module="article",
-        stem="article",
-        repository="https://github.com/roytsmart/article",
-        layout=thesis.aastex_twocolumn,
+    # The manuscript written by the fixture stands in for one published by
+    # its repository.
+    published = manuscripts[0]
+    manuscript = dataclasses.replace(
+        published,
+        url=published.directory(root).as_uri(),
     )
 
-    root = tmp_path / "manuscripts"
-    result = manuscript.build(python=sys.executable, root=root)
+    destination = tmp_path / "downloaded"
+    result = manuscript.download(root=destination)
 
-    # The article is built as its repository builds it, so its draft keeps
-    # its line numbers.
-    assert result == root / "article" / "article.pdf"
-    assert result.read_text() == "linenumbers=True"
-    assert result.with_suffix(".bbl").exists()
-    assert (result.parent / "sources.bib").exists()
+    assert result == manuscript.pdf(destination)
+    for a, b in zip(_files(published, root), _files(manuscript, destination)):
+        assert a.read_bytes() == b.read_bytes()
 
 
-def test_build_failure(tmp_path: pathlib.Path) -> None:
-    manuscript = thesis.Manuscript(
-        name="missing",
-        title="A Missing Article",
-        authors=[thesis.Author("Roy T. Smart")],
-        module="a_package_which_does_not_exist",
-        stem="missing",
-        repository="https://github.com/roytsmart/missing",
-        layout=thesis.aastex_twocolumn,
+def test_download_url(
+    manuscripts: list[thesis.Manuscript],
+    root: pathlib.Path,
+    tmp_path: pathlib.Path,
+) -> None:
+    # A manuscript can be downloaded from somewhere other than where its
+    # repository publishes it, like the preview of a pull request.
+    published = manuscripts[0]
+    manuscript = dataclasses.replace(
+        published,
+        url=(tmp_path / "nowhere").as_uri(),
     )
-    with pytest.raises(RuntimeError, match="a_package_which_does_not_exist"):
-        manuscript.build(python=sys.executable, root=tmp_path)
+
+    destination = tmp_path / "downloaded"
+    manuscript.download(url=published.directory(root).as_uri(), root=destination)
+
+    for a, b in zip(_files(published, root), _files(manuscript, destination)):
+        assert a.read_bytes() == b.read_bytes()
+
+
+def test_download_incomplete(
+    manuscripts: list[thesis.Manuscript],
+    root: pathlib.Path,
+    tmp_path: pathlib.Path,
+) -> None:
+    # A repository which publishes the PDF without its BibTeX file.
+    manuscript = manuscripts[0]
+    incomplete = tmp_path / "incomplete"
+    incomplete.mkdir()
+    shutil.copy2(manuscript.pdf(root), incomplete)
+    shutil.copy2(manuscript.bbl(root), incomplete)
+
+    destination = tmp_path / "downloaded"
+    with pytest.raises(urllib.error.URLError):
+        manuscript.download(url=incomplete.as_uri(), root=destination)
+
+    # Nothing is written, so a PDF is never left beside the bibliography of
+    # another build.
+    assert not manuscript.directory(destination).exists()

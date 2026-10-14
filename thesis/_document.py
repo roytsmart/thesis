@@ -45,7 +45,7 @@ def document(
         The manuscripts to include as chapters.
         If :obj:`None`, :func:`thesis.manuscripts` is used.
     root
-        The directory which holds the built manuscripts.
+        The directory which holds the downloaded manuscripts.
         If :obj:`None`, :obj:`thesis.directory_manuscripts` is used.
     """
     if manuscripts is None:
@@ -94,7 +94,7 @@ def document(
     # as it is by `thesis.bibliography()`.
     keys = {}
     for manuscript in manuscripts:
-        for key in thesis.citations(manuscript.pdf(root).with_suffix(".bbl")):
+        for key in thesis.citations(manuscript.bbl(root)):
             keys.setdefault(key.casefold(), key)
     keys = list(keys.values())
     if keys:
@@ -125,7 +125,7 @@ def pdf(
         The manuscripts to include as chapters.
         If :obj:`None`, :func:`thesis.manuscripts` is used.
     root
-        The directory which holds the built manuscripts.
+        The directory which holds the downloaded manuscripts.
         If :obj:`None`, :obj:`thesis.directory_manuscripts` is used.
     directory
         The directory to build the thesis in.
@@ -147,7 +147,7 @@ def pdf(
             src=manuscript.pdf(root),
             dst=directory / "manuscripts" / f"{manuscript.name}.pdf",
         )
-        bibliographies += sorted(manuscript.directory(root).glob("*.bib"))
+        bibliographies.append(manuscript.bib(root))
 
     references = thesis.bibliography(bibliographies)
     (directory / "references.bib").write_text(references, encoding="utf-8")

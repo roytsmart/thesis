@@ -1,0 +1,135 @@
+name: pdf
+
+# Compiles the thesis from the manuscripts as the repositories of the
+# articles publish them, and publishes it to GitHub Pages: at the root for
+# `master`, and under `pr/<number>/` for a pull request. It runs every day as
+# well, so that the published thesis follows the articles as they change.
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  schedule:
+    - cron: "0 9 * * *"
+  workflow_dispatch:
+
+# Every run pushes to the same branch, so serialize them.
+concurrency:
+  group: gh-pages
+  cancel-in-progress: false
+
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Install LaTeX
+        run: >-
+          sudo apt-get update -o DPkg::Lock::Timeout=300 &&
+          sudo apt-get install -y -o DPkg::Lock::Timeout=300
+          texlive-latex-extra texlive-science cm-super latexmk
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+      - name: Download the manuscripts and compile the thesis
+        run: |
+          python -c "
+          import shutil
+          import thesis
+          for manuscript in thesis.manuscripts():
+              manuscript.download()
+          shutil.copy2(thesis.pdf(), 'thesis.pdf')
+          "
+      - name: Upload the thesis
+        uses: actions/upload-artifact@v4
+        with:
+          name: thesis
+          path: thesis.pdf
+          if-no-files-found: error
+
+      - name: Determine where to publish
+        id: target
+        env:
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            echo "dir=pr/$PR" >> "$GITHUB_OUTPUT"
+            echo "pr=$PR" >> "$GITHUB_OUTPUT"
+          elif [ "$GITHUB_REF" = "refs/heads/master" ]; then
+            echo "dir=." >> "$GITHUB_OUTPUT"
+            echo "pr=" >> "$GITHUB_OUTPUT"
+          else
+            echo "Not master or a pull request; nothing to publish."
+            echo "dir=" >> "$GITHUB_OUTPUT"
+            echo "pr=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish to the gh-pages branch
+        if: steps.target.outputs.dir != ''
+        env:
+          DIR: ${{ steps.target.outputs.dir }}
+          SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          remote="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          if git clone --depth 1 --branch gh-pages "$remote" pages 2>/dev/null; then
+            echo "cloned existing gh-pages"
+          else
+            echo "gh-pages does not exist yet; creating it"
+            mkdir pages
+            cd pages
+            git init -q
+            git checkout -q -b gh-pages
+            git remote add origin "$remote"
+            cd ..
+          fi
+
+          mkdir -p "pages/${DIR}"
+          cp thesis.pdf "pages/${DIR}/thesis.pdf"
+
+          cd pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --all
+          if git diff --cached --quiet; then
+            echo "The thesis is unchanged; nothing to publish."
+          else
+            # The thesis is compiled every day, and no two of its PDFs are the
+            # same byte for byte, so gh-pages keeps only its latest commit
+            # rather than growing by a PDF a day.
+            git checkout -q --orphan latest
+            git commit -q -m "Publish thesis.pdf for ${SHA:0:7} to ${DIR}"
+            git push -q --force origin latest:gh-pages
+          fi
+
+      - name: Comment the preview link on the pull request
+        if: steps.target.outputs.pr != ''
+        env:
+          PR: ${{ steps.target.outputs.pr }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          repo_name="${GITHUB_REPOSITORY#*/}"
+          url="https://${GITHUB_REPOSITORY_OWNER}.github.io/${repo_name}/pr/${PR}/thesis.pdf"
+          body="<!-- pdf-preview -->
+          **Thesis preview:** [thesis.pdf](${url})
+
+          Built from \`${SHA:0:7}\`. This link is updated on every push to this pull request."
+
+          # Update the existing comment in place so pushes do not pile up comments.
+          id=$(gh api "repos/${GITHUB_REPOSITORY}/issues/${PR}/comments" --paginate \
+                 --jq '[.[] | select(.body | startswith("<!-- pdf-preview -->"))][0].id // empty')
+          if [ -n "$id" ]; then
+            gh api -X PATCH "repos/${GITHUB_REPOSITORY}/issues/comments/${id}" -f body="$body" >/dev/null
+          else
+            gh api -X POST "repos/${GITHUB_REPOSITORY}/issues/${PR}/comments" -f body="$body" >/dev/null
+          fi

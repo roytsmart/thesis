@@ -1,9 +1,6 @@
 import dataclasses
-import os
 import pathlib
-import shutil
-import subprocess
-import sys
+import urllib.request
 from typing import Literal
 
 from ._layout import Layout, aastex_twocolumn, spieman
@@ -17,8 +14,8 @@ __all__ = [
 
 directory_manuscripts = pathlib.Path(__file__).parent / "manuscripts"
 """
-Where :meth:`Manuscript.build` puts the manuscripts by default, and where
-:func:`thesis.pdf` looks for them.
+Where :meth:`Manuscript.download` puts the manuscripts by default, and
+where :func:`thesis.pdf` looks for them.
 """
 
 
@@ -50,8 +47,10 @@ class Manuscript:
     The pages are scaled to fit the :class:`Layout` of the class of the
     journal into the text block of the thesis, so a draft is scaled as its
     final version will be, and its line numbers stay in the margin.
-    The article is built in an environment of its own, since the articles do
-    not all depend on the same versions of the same packages.
+    The article is downloaded from where its repository publishes it, with
+    its formatted bibliography and its BibTeX file, rather than built here,
+    since the articles do not all depend on the same versions of the same
+    packages.
     """
 
     name: str
@@ -63,17 +62,20 @@ class Manuscript:
     authors: list[Author]
     """The authors of the manuscript, in the order they appear on it."""
 
-    module: str
-    """
-    The name of the Python package which builds the manuscript, whose
-    ``pdf()`` function returns the path of the PDF it built.
-    """
-
     stem: str
-    """The name of the PDF the package builds, without its extension."""
+    """
+    The name the repository publishes the PDF, the formatted bibliography,
+    and the BibTeX file of the manuscript under, without their extensions.
+    """
 
     repository: str
     """The URL of the repository of the manuscript."""
+
+    url: str
+    """
+    The URL of the directory the repository publishes the manuscript to, on
+    GitHub Pages.
+    """
 
     layout: Layout
     """
@@ -107,7 +109,7 @@ class Manuscript:
 
     def directory(self, root: pathlib.Path = directory_manuscripts) -> pathlib.Path:
         """
-        The directory the built manuscript is kept in.
+        The directory the downloaded manuscript is kept in.
 
         Parameters
         ----------
@@ -118,7 +120,7 @@ class Manuscript:
 
     def pdf(self, root: pathlib.Path = directory_manuscripts) -> pathlib.Path:
         """
-        The PDF of the built manuscript.
+        The PDF of the downloaded manuscript.
 
         Parameters
         ----------
@@ -127,47 +129,69 @@ class Manuscript:
         """
         return self.directory(root) / f"{self.stem}.pdf"
 
-    def build(
-        self,
-        python: str | os.PathLike = sys.executable,
-        root: pathlib.Path = directory_manuscripts,
-    ) -> pathlib.Path:
+    def bbl(self, root: pathlib.Path = directory_manuscripts) -> pathlib.Path:
         """
-        Build the PDF of the manuscript as its repository does, and copy it,
-        its formatted bibliography, and its BibTeX files into
-        :meth:`directory`.
+        The formatted bibliography of the downloaded manuscript, which lists
+        what it cites.
 
         Parameters
         ----------
-        python
-            The Python interpreter of an environment which has the package
-            of the manuscript installed.
         root
             The directory which holds the directories of every manuscript.
         """
-        directory = self.directory(root)
-        directory.mkdir(parents=True, exist_ok=True)
+        return self.directory(root) / f"{self.stem}.bbl"
 
-        code = f"import {self.module}; print({self.module}.pdf())"
-        process = subprocess.run(
-            [os.fspath(python), "-c", code],
-            capture_output=True,
-            text=True,
-            check=False,
-            # Run outside of any source tree, so that the package is imported
-            # from where it is installed.
-            cwd=directory,
-            env=os.environ | {"MPLBACKEND": "agg"},
-        )
-        if process.returncode != 0:
-            raise RuntimeError(
-                f"building {self.module} failed:\n{process.stderr[-4000:]}"
-            )
+    def bib(self, root: pathlib.Path = directory_manuscripts) -> pathlib.Path:
+        """
+        The BibTeX file the bibliography of the downloaded manuscript was
+        formatted from.
 
-        source = pathlib.Path(process.stdout.strip().splitlines()[-1])
-        paths = [source, source.with_suffix(".bbl"), *source.parent.glob("*.bib")]
+        Parameters
+        ----------
+        root
+            The directory which holds the directories of every manuscript.
+        """
+        return self.directory(root) / f"{self.stem}.bib"
+
+    def download(
+        self,
+        url: None | str = None,
+        root: pathlib.Path = directory_manuscripts,
+    ) -> pathlib.Path:
+        """
+        Download the PDF of the manuscript, its formatted bibliography, and
+        its BibTeX file into :meth:`directory`, and return the path of the
+        PDF.
+
+        Nothing is written unless all three are downloaded, so that the PDF
+        of one build is never paired with the bibliography of another.
+
+        Parameters
+        ----------
+        url
+            The URL of the directory to download the manuscript from, such
+            as the preview of a pull request to the repository of the
+            manuscript.
+            If :obj:`None`, :attr:`url` is used.
+        root
+            The directory which holds the directories of every manuscript.
+        """
+        if url is None:
+            url = self.url
+
+        paths = [self.pdf(root), self.bbl(root), self.bib(root)]
+
+        contents = []
         for path in paths:
-            shutil.copy2(path, directory / path.name)
+            with urllib.request.urlopen(
+                f"{url.rstrip('/')}/{path.name}",
+                timeout=60,
+            ) as response:
+                contents.append(response.read())
+
+        self.directory(root).mkdir(parents=True, exist_ok=True)
+        for path, content in zip(paths, contents, strict=True):
+            path.write_bytes(content)
 
         return self.pdf(root)
 
@@ -198,9 +222,9 @@ def manuscripts() -> list[Manuscript]:
                 Author("Larry Springer"),
                 Author("David L. Windt"),
             ],
-            module="esis_instrument_paper",
             stem="esis-instrument",
             repository="https://github.com/esis-mission/esis-instrument-paper",
+            url="https://esis-mission.github.io/esis-instrument-paper/",
             layout=aastex_twocolumn,
         ),
         Manuscript(
@@ -214,9 +238,9 @@ def manuscripts() -> list[Manuscript]:
                 Author("Charles C. Kankelborg"),
                 Author("Jacob D. Parker"),
             ],
-            module="ccd_snr",
             stem="ccd-euv-snr",
             repository="https://github.com/roytsmart/ccd-noise-paper",
+            url="https://roytsmart.github.io/ccd-noise-paper/",
             layout=aastex_twocolumn,
         ),
         Manuscript(
@@ -229,9 +253,9 @@ def manuscripts() -> list[Manuscript]:
                 Author("Roy T. Smart"),
                 Author("Charles C. Kankelborg"),
             ],
-            module="ccd_diffusion",
             stem="ccd-diffusion",
             repository="https://github.com/roytsmart/ccd-diffusion-paper",
+            url="https://roytsmart.github.io/ccd-diffusion-paper/",
             layout=spieman,
         ),
         Manuscript(
@@ -246,9 +270,9 @@ def manuscripts() -> list[Manuscript]:
                 Author("Jacob D. Parker"),
                 Author("Dana W. Longcope"),
             ],
-            module="esis_jet_paper",
             stem="esis-jet",
             repository="https://github.com/esis-mission/esis-jet-paper",
+            url="https://esis-mission.github.io/esis-jet-paper/",
             layout=aastex_twocolumn,
         ),
     ]

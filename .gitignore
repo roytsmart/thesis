@@ -30,8 +30,9 @@ coverage.xml
 *.lot
 *.synctex.gz
 
-# The manuscripts the thesis is assembled from, which are built from the
-# repositories of the articles by `thesis.Manuscript.build()`.
+# The manuscripts the thesis is assembled from, which are downloaded from
+# where the repositories of the articles publish them by
+# `thesis.Manuscript.download()`.
 thesis/manuscripts/
 
 # The generated thesis and everything copied beside it to build it, all of

@@ -15,8 +15,8 @@ def _manuscript(
     linenumbers: bool = False,
 ) -> thesis.Manuscript:
     """
-    Write a small manuscript into a directory, as :meth:`thesis.Manuscript.build`
-    would, and describe it.
+    Write a small manuscript into a directory, as
+    :meth:`thesis.Manuscript.download` would, and describe it.
 
     The PDF has three letter-sized pages whose layout spans from 50 to 562
     big points across and from 40 to 752 big points down, marked by a black
@@ -47,9 +47,9 @@ def _manuscript(
             thesis.Author("Roy T. Smart", contributions="Wrote the manuscript."),
             thesis.Author("Charles C. Kankelborg"),
         ],
-        module=name,
         stem=f"{name}-article",
         repository=f"https://github.com/roytsmart/{name}",
+        url=f"https://roytsmart.github.io/{name}/",
         layout=thesis.Layout(left=50, top=40, right=562, bottom=752),
     )
 
@@ -91,7 +91,7 @@ def _manuscript(
 
     doe = "Doe2020" if name == "first" else "doe2020"
 
-    path.with_suffix(".bbl").write_text(
+    manuscript.bbl(directory).write_text(
         "\\begin{thebibliography}{}\n"
         f"\\bibitem[{{{{Doe}}(2020)}}]{{{doe}}}\n"
         "{Doe}, J. 2020, \\apj, 1, 1\n"
@@ -100,7 +100,7 @@ def _manuscript(
         "\\end{thebibliography}\n",
         encoding="utf-8",
     )
-    (path.parent / "sources.bib").write_text(
+    manuscript.bib(directory).write_text(
         f"@article{{{doe},\n"
         "  author = {{Doe}, J.},\n"
         "  title = {A Work Cited by Every Manuscript},\n"
