@@ -5,7 +5,8 @@
 [![Ruff](https://github.com/roytsmart/thesis/actions/workflows/ruff.yml/badge.svg)](https://github.com/roytsmart/thesis/actions/workflows/ruff.yml)
 [![pdf](https://github.com/roytsmart/thesis/actions/workflows/pdf.yml/badge.svg)](https://github.com/roytsmart/thesis/actions/workflows/pdf.yml)
 
-The doctoral dissertation of Roy T. Smart, Department of Physics, Montana State
+*Computed Tomography Imaging Spectroscopy of the Solar Transition Region*, the
+doctoral dissertation of Roy T. Smart, Department of Physics, Montana State
 University.
 
 📄 **[Read the current draft (pdf)](https://roytsmart.github.io/thesis/thesis.pdf)**
@@ -100,8 +101,6 @@ repository; it can be enabled again from the Actions tab.
 Placeholders render as a bold **XX** or a gray outline, so that the draft
 shows plainly what is left.
 
-- [ ] The fullest form of the author's name (first, middle, last) in `thesis/_front.py`.
-- [ ] The title, in `thesis/_front.py`.
 - [ ] The abstract, introduction, methodology, and conclusion, which the
       Graduate School requires to be solely the student's own writing.
 - [ ] The contributions of every author of every manuscript, and the status
