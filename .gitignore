@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# tooling caches
+.pytest_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+.cache/
+
+# editors
+.idea/
+.vscode/
+.ipynb_checkpoints/
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.synctex.gz
+
+# The manuscripts the thesis is assembled from, which are downloaded from
+# where the repositories of the articles publish them by
+# `thesis.Manuscript.download()`.
+thesis/manuscripts/
+
+# The generated thesis and everything copied beside it to build it, all of
+# which `thesis.pdf()` reproduces.
+thesis/build/
