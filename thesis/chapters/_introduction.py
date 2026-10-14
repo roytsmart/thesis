@@ -52,6 +52,12 @@ def introduction() -> Chapter:
       before flight (Chapter 5).
     \item Why Chapters 3 and 4 use sensors on IRIS and the Hubble Space
       Telescope rather than those of ESIS, and how their results carry over.
+      \begin{itemize}
+      \item Chapter 3: \textbf{XX}.
+      \item Chapter 4: no ultraviolet photon transfer curve was available
+        for the ESIS sensors, so the noise model is tested against the
+        measurements from IRIS and the Hubble Space Telescope.
+      \end{itemize}
     \end{itemize}
   \end{itemize}
 \item \textbf{The purpose and objectives.}
