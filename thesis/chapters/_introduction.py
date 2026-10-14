@@ -53,7 +53,9 @@ def introduction() -> Chapter:
     \item Why Chapters 3 and 4 use sensors on IRIS and the Hubble Space
       Telescope rather than those of ESIS, and how their results carry over.
       \begin{itemize}
-      \item Chapter 3: \textbf{XX}.
+      \item Chapter 3: the noise model of Chapter 4 is tested against
+        IRIS, and needs an accurate model of how charge diffuses in the IRIS
+        sensors.
       \item Chapter 4: no ultraviolet photon transfer curve was available
         for the ESIS sensors, so the noise model is tested against the
         measurements from IRIS and the Hubble Space Telescope.
@@ -81,7 +83,8 @@ def introduction() -> Chapter:
     the order of publication, so none refers forward.
     \begin{itemize}
     \item Chapter 3: the charge-diffusion kernel of the IRIS sensors, from
-      glancing particle tracks.
+      glancing particle tracks, which Chapter 4 needs to model the noise of
+      those sensors.
     \item Chapter 4: partial charge collection, and the noise of
       ultraviolet images from IRIS and the Hubble Space Telescope.
     \item Chapter 5: ESIS, its design, and its first flight.
