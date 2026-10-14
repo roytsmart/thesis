@@ -15,14 +15,11 @@ def front() -> list[pylatex.NoEscape]:
     (first, middle, and last) on the title and copyright pages, and for the
     title, author, and language to be set in the properties of the PDF.
     """
-    name = "Roy T. Smart"
-    # The title is not decided yet, so it is marked as owed, in bold on the
-    # title page and as plain text in the properties of the PDF, which
-    # cannot hold formatting.
-    title = "XX"
+    name = "Roy Thomas Smart"
+    title = "Computed Tomography Imaging Spectroscopy of the Solar Transition Region"
     return [
         pylatex.NoEscape(rf"\name{{{name}}}"),
-        pylatex.NoEscape(rf"\DocTitle{{\textbf{{{title}}}}}"),
+        pylatex.NoEscape(rf"\DocTitle{{{title}}}"),
         pylatex.NoEscape(r"\degreetitle{Physics}"),
         pylatex.NoEscape(r"\department{Physics}"),
         pylatex.NoEscape(r"\committeechair{Charles C. Kankelborg}"),
