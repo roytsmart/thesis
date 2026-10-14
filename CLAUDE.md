@@ -24,7 +24,9 @@ inserted as the PDFs those repositories publish on GitHub Pages.
 - **The introduction, methodology, conclusion, and abstract are the
   student's own writing.** The Graduate School requires the introduction and
   conclusion to be solely the student's work, so never draft their prose.
-  Leave them as an `outline` of what each must contain.
+  Leave them as an `outline` of what each must contain. The abstract holds a
+  draft the student asked for, which they will rewrite in their own words;
+  do not polish or extend it unless asked.
 - **Never reformat the manuscripts.** They are inserted as the PDFs their
   repositories build, line numbers and all. A change to an article belongs in
   the repository of the article.

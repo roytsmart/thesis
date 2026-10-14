@@ -101,8 +101,11 @@ repository; it can be enabled again from the Actions tab.
 Placeholders render as a bold **XX** or a gray outline, so that the draft
 shows plainly what is left.
 
-- [ ] The abstract, introduction, methodology, and conclusion, which the
-      Graduate School requires to be solely the student's own writing.
+- [ ] The introduction, methodology, and conclusion, which the Graduate
+      School requires to be solely the student's own writing.
+- [ ] The abstract rewritten in the student's own words, from the draft in
+      `thesis/_front.py`, with the results of the event E article and the
+      conclusions filled in.
 - [ ] The contributions of every author of every manuscript, and the status
       of each manuscript, in `thesis/_manuscripts.py`.
 - [ ] The line numbers of each article turned off once it is final.
